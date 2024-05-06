@@ -141,6 +141,41 @@ TEST(GuesserTest, Remaining_DecrementForIncorrectGuess) {
 
 TEST(GuesserTest, Match_TruncateSecret) {
 	Guesser g("1234567890123456789012345678901234567890");
-	ASSERT_TRUE(g.match("12345678901234567890123456789012"));
+	ASSERT_TRUE(g.match("12345678901234567890123456789012")); //32
 }
 
+TEST(GuesserTest, Match_TruncatedSecretMatches) {
+	Guesser guesser("1234567890123456789012345678901234567890");
+	bool actual = guesser.match("12345678901234567890123456789012");  //32
+	ASSERT_TRUE(actual);
+}
+
+TEST(GuesserTest, Match_SpecialCharacters) {
+	Guesser guesser("!@#$%^&*");
+	bool actual = guesser.match("!@#$%^&*");
+	ASSERT_TRUE(actual);
+}
+
+TEST(GuesserTest, Match_LongSimilar) {
+	Guesser guesser("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");  //32
+	bool actual = guesser.match("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab"); 
+	ASSERT_FALSE(actual);
+}
+
+TEST(GuesserTest, Remaining_RightWrongRight) {
+	Guesser guesser("right");
+	guesser.match("right");
+	guesser.match("wrong");
+	guesser.match("right");
+	unsigned int actual = guesser.remaining();
+	ASSERT_EQ(3, actual);
+}
+
+TEST(GuesserTest, Remaining_WrongRightWrong) {
+	Guesser guesser("right");
+	guesser.match("wrong");
+	guesser.match("right");
+	guesser.match("wrong");
+	unsigned int actual = guesser.remaining();
+	ASSERT_EQ(2, actual);
+}
